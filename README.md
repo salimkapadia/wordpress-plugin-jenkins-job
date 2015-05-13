@@ -1,14 +1,6 @@
-=== WP Plugin Jenkins Job ===
-Contributors: salimkapadia
-Tags: custom job, publish action  
-Requires at least: 3.1
-Stable tag: 0.1
-License: GPLv2
+WP Plugin Jenkins Job
+===================
+This purpose of this simple Wordpress plugin is to run a custom job when a post/page is added or updated.
 
-Run a custom job when a post/page is added or updated
-
-== Description ==
-Add new statuses to post, page and custom-post, by simple user interface.
-
-== Installation ==
+# Installation
 Use standard wordpress installation.
