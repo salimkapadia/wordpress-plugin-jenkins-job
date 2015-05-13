@@ -9,4 +9,4 @@ Create a folder under {wordpress_location}/wp-content/plugins/wordpress-plugin-j
 cd public_html/wordpress/wp-content/plugins
 mkdir wordpress-plugin-jenkins-job
 git clone https://github.com/salimkapadia/wordpress-plugin-jenkins-job.git
-```bash
+```
