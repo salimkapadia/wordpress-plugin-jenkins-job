@@ -11,7 +11,9 @@ License: GPLv2
 
 	define('WP_PLUGIN_JENKINS_JOB','wordpress_plugin_jenkins_job'); // This is used for namespacing of possible language files (i18n)
 
-	define('SITEPUSH_LABEL','Publis to live'); // The label to display
+	define('SITEPUSH_LABEL','Publish to live'); // The label to display
+
+	define('ELEMENT_NAME','wordpress_plugin_jenkins_job_site_push'); // The name of the HTML element
 
 	/*
 		Do any installation steps here.
@@ -59,19 +61,9 @@ License: GPLv2
 				$callback,
 				$screen,
 				$context,
-				$priority
-			);
-
-			/*
-			add_meta_box($id,
-				__( $title, WP_PLUGIN_JENKINS_JOB),
-				$callback,
-				$screen,
-				$context,
 				$priority,
 				$callback_args
 			);
-			 */
 		}
 	}
 
@@ -84,40 +76,54 @@ License: GPLv2
 		echo '<label for="wordpress_plugin_jenkins_job_site_push">';
 			_e( SITEPUSH_LABEL, WP_PLUGIN_JENKINS_JOB );
 		echo '</label> ';
-		echo '<input type="checkbox" id="wordpress_plugin_jenkins_job_site_push" name="wordpress_plugin_jenkins_job_site_push" checked />';
+		echo '<input type="checkbox" id="' . ELEMENT_NAME . '" name="' . ELEMENT_NAME . '" checked />';
 	}
 
-	function post_updated_do_sitepush( $post_id ) {
+	function post_saved( $post_id ) {
 		$post = get_post($post_id); 
 
 		if( $post == NULL){
 			return;
 		}
+
 		$post_status = $post->post_status;
+
+		/* check if the custom field is submitted (checkboxes that aren't marked, aren't submitted) */
+		$is_custom_action_requested = ($_POST[ELEMENT_NAME]) ? true : false;
 
 		//https://codex.wordpress.org/Post_Status
 		switch ( $post_status ) {
-			case 'publish':
+			case 'draft': //https://codex.wordpress.org/Post_Status#Draft
 
-			case 'future':
+			case 'auto-draft': //https://codex.wordpress.org/Post_Status#Auto-Draft
 
-			case 'draft':
+			case 'future': //https://codex.wordpress.org/Post_Status#Future
 
-			case 'pending':
+			case 'pending': //https://codex.wordpress.org/Post_Status#Pending
 
-			case 'private':
+			case 'private': //https://codex.wordpress.org/Post_Status#Private
 
-			case 'trash':
+			case 'trash': //https://codex.wordpress.org/Post_Status#Trash
 
-			case 'auto-draft':
+			case 'inherit': //https://codex.wordpress.org/Post_Status#Inherit
+				break;
 
-			case 'inherit':
-
-			default :
-				//call jenkins job
+			case 'publish': //https://codex.wordpress.org/Post_Status#Published
+				if ($is_custom_action_requested){
+					run_jenkins_job();
+				}
+				break;
 			break;
 		}
 	}
+
+	/*
+		This function will call out to jenkins to perform the site push.
+	 */
+	function run_jenkins_job(){
+
+	}
+
 	/* Runs when plugin is activated */
 	register_activation_hook(__FILE__,'wordpress_plugin_jenkins_job_install');
 
@@ -129,7 +135,7 @@ License: GPLv2
 	
 	/* https://codex.wordpress.org/Plugin_API/Action_Reference/save_post */
 	/* Runs whenever a post or page is created or updated, which could be from an import, post/page edit form, xmlrpc, or post by email. */
-	add_action( 'save_post', 'post_updated_do_sitepush' );	
+	add_action( 'save_post', 'post_saved' );
 
 	/* This adds a box in various WP admin screens	*/
 	/* http://codex.wordpress.org/Function_Reference/add_meta_box */
